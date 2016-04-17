@@ -19,5 +19,8 @@
           (assoc :basePath basePath))))
 
   (stop [this]
-    (assoc this :counter nil)))
+    (-> this
+        (assoc :authorization nil)
+        (assoc :client nil)
+        (assoc :basePath nil))))
 
