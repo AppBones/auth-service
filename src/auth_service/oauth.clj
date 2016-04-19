@@ -2,19 +2,18 @@
   (:require [com.stuartsierra.component :as component])
   (:import (io.oauth.server.api AuthorizationApi ClientApi)))
 
-(defrecord OAuthProvider [scheme domain basePath providerId providerSecret]
+(defrecord OAuthProvider [basePath providerId providerSecret]
   component/Lifecycle
 
   (start [this]
     (println "Creating oauthd component ...")
     (AuthorizationApi/initialize providerId providerSecret)
-    (let [path (str scheme "://" domain "/" basePath)
-          auth (-> (AuthorizationApi.)
-                   (doto (.setBasePath path)))
+    (let [authen (-> (AuthorizationApi.)
+                     (doto (.setBasePath basePath)))
           client (-> (ClientApi.)
-                     (doto (.setBasePath path)))]
+                     (doto (.setBasePath basePath)))]
       (-> this
-          (assoc :authorization auth)
+          (assoc :authorization authen)
           (assoc :client client)
           (assoc :basePath basePath))))
 

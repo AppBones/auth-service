@@ -7,7 +7,7 @@
             [auth-service.db :as db])
   (:gen-class))
 
-(defn opt-or-fallback
+(defn get-opt
   "Performs a series of passthroughs in the event that the given configuration
   option does not exist.
   First, it looks up env-var in the environment, and if that is also nil, it returns the provided default."
@@ -20,22 +20,18 @@
 
 (defn create-service [config-opts]
   "wires up the web service's dependency graph with provided configuration"
-  (let [{:keys [domain http-port db-connection is-dev oauth-base-path
+  (let [{:keys [domain http-port db-connection is-dev oauthd-url
                 oauthio-id oauthio-secret]} config-opts
         is-dev (if (nil? is-dev) (= "true" (env :is-dev)) is-dev)
-        scheme (if is-dev "http" "https")
-        domain (opt-or-fallback domain :domain (str "localhost:" http-port))
-        http-port (read-string (opt-or-fallback http-port :port "8081"))
-        basePath (opt-or-fallback oauth-base-path :oauth-base-path "oauth2")
-        providerId (opt-or-fallback oauthio-id :oauthio-id "")
-        providerSecret (opt-or-fallback oauthio-secret :oauthio-secret "")
-        db-connection (opt-or-fallback db-connection :db-connection "")]
+        http-port (read-string (get-opt http-port :port "8081"))
+        oauthd-url (get-opt oauthd-url :oauthd-url "https://oauth.io/oauth2")
+        providerId (get-opt oauthio-id :oauthio-id "")
+        providerSecret (get-opt oauthio-secret :oauthio-secret "")
+        db-connection (get-opt db-connection :db-connection "")]
     (component/system-map
      :config-opts config-opts
      :db (db/map->DB {:conn db-connection})
-     :oauth (oauth/map->OAuthProvider {:scheme scheme
-                                       :domain domain
-                                       :basePath basePath
+     :oauth (oauth/map->OAuthProvider {:basePath oauthd-url
                                        :providerId providerId
                                        :providerSecret providerSecret})
      :routes (component/using
