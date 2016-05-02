@@ -8,10 +8,10 @@
                  [environ "1.0.2"]
                  [hiccup "1.0.5"]
                  [http-kit "2.1.19"]
+                 [io.oauth/oauthio-java-client "1.0.0"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.2.0"]
-                 [valichek/component-compojure "0.2-SNAPSHOT"]
-                 [io.oauth/oauthio-java-client "1.0.0"]]
+                 [valichek/component-compojure "0.2-SNAPSHOT"]]
   :plugins [[lein-ring "0.9.7"]
             [lein-environ "1.0.2"]]
   :repositories [["oauthio-server-java-mvn-repo" {:url "https://raw.github.com/oauth-io/oauthio-server-java/mvn-repo/"

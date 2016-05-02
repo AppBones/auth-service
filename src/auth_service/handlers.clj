@@ -20,7 +20,6 @@
 (defn get-authorize [request db oauth]
   (let [client_id (get-in request [:query-params "client_id"])
         user "demo"]
-    (clojure.pprint/pprint request)
     (if (nil? client_id)
       {:status 400 :body "No client_id provided."}
       (try
@@ -36,16 +35,18 @@
   (let [client_id (get-in request [:query-params "client_id"])
         decision (get-in request [:form-params "decision"])
         user "demo"]
-    (clojure.pprint/pprint request)
     (try
       (let [client (.getClient (:client oauth) client_id)
-;            re (.getRedirectUri client)
-            cb (.authorize (:authorization oauth) client_id decision user nil "http://oauth.io/auth" "abc" "code")
+            re (.getRedirectUri client)
+            rtype (get-in request [:query-params "response_type"])
+            state (get-in request [:query-params "state"])
+            scope (get-in request [:query-params "scope"])
+            cb (.authorize (:authorization oauth) client_id decision user scope re state rtype)
             uri (.getCallbackUri cb)]
         (response/redirect uri))
       (catch io.oauth.server.ApiException e
         (prn e)
-        {:status 400 :body e}))))
+        {:status 400 :body (.toString e)}))))
 
 (defn get-token [request db oauth]
   "I don't do much yet")
