@@ -11,10 +11,10 @@
           [:p (str (escape-html app) " wants access to your account on AppBone.")]
           [:p (escape-html desc)]
           [:form {:role "form" :method "POST"}
-           [:input {:type "hidden" :name "Decision" :value "1"}]
+           [:input {:type "hidden" :name "decision" :value "1"}]
            [:input {:type "submit" :value "Authorize"}]]
           [:form {:role "form" :method "POST"}
-           [:input {:type "hidden" :name "Decision" :value "0"}]
+           [:input {:type "hidden" :name "decision" :value "0"}]
            [:input {:type "submit" :value "Deny"}]]]))
 
 (defn get-authorize [request db oauth]
@@ -32,21 +32,21 @@
           {:status 404 :body "No client matches given client_id."})))))
 
 (defn post-authorize [request db oauth]
-  (let [client_id (get-in request [:query-params "client_id"])
-        decision (get-in request [:form-params "decision"])
+  (let [client_id (get-in request [:params :client_id])
+        decision (get-in request [:params :decision])
         user "demo"]
     (try
       (let [client (.getClient (:client oauth) client_id)
             re (.getRedirectUri client)
-            rtype (get-in request [:query-params "response_type"])
-            state (get-in request [:query-params "state"])
-            scope (get-in request [:query-params "scope"])
-            cb (.authorize (:authorization oauth) client_id decision user scope re state rtype)
+            rtype (get-in request [:params :response_type])
+            state (get-in request [:params :state])
+            scope (get-in request [:params :scope])
+            cb (.authorize (:authorization oauth) client_id decision user nil re state rtype)
             uri (.getCallbackUri cb)]
         (response/redirect uri))
       (catch io.oauth.server.ApiException e
         (prn e)
-        (response/content-type {:body (.getMessage e)} "text/html")))))
+        {:body (.getMessage e)}))))
 
 (defn get-token [request db oauth]
   "I don't do much yet")
