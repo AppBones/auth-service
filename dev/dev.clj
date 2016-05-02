@@ -1,6 +1,5 @@
 (ns dev
-  (:require [auth-service.core :refer :all]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [environ.core :refer [env]]
             [clojure.java.javadoc :refer [javadoc]]
             [clojure.pprint :refer [pprint]]
@@ -10,7 +9,8 @@
             [clojure.string :as str]
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]
-            [com.stuartsierra.component :as component]))
+            [com.stuartsierra.component :as component]
+            [auth-service.core :refer :all]))
 
 (def system nil)
 

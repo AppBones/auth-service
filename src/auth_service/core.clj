@@ -21,12 +21,12 @@
 (defn create-service [config-opts]
   "wires up the web service's dependency graph with provided configuration"
   (let [{:keys [domain http-port db-connection is-dev oauthd-url
-                oauthio-id oauthio-secret]} config-opts
+                oauthd-id oauthd-secret]} config-opts
         is-dev (if (nil? is-dev) (= "true" (env :is-dev)) is-dev)
         http-port (read-string (get-opt http-port :port "8081"))
         oauthd-url (get-opt oauthd-url :oauthd-url "https://oauth.io/oauth2")
-        providerId (get-opt oauthio-id :oauthio-id "")
-        providerSecret (get-opt oauthio-secret :oauthio-secret "")
+        providerId (get-opt oauthd-id :oauthd-id "")
+        providerSecret (get-opt oauthd-secret :oauthd-secret "")
         db-connection (get-opt db-connection :db-connection "")]
     (component/system-map
      :config-opts config-opts

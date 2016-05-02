@@ -5,11 +5,11 @@
             [auth-service.handlers :refer :all]))
 
 (ccompojure/defroutes Routes [db oauth]
-  (compojure/context (str "/" (:basePath oauth)) []
+  (compojure/context "/oauth2" []
     (compojure/GET "/token" request
-      (token-fn request db oauth))
+      (get-token request db oauth))
     (compojure/GET "/authorize" request
-      (authorize-fn request db oauth))
+      (get-authorize request db oauth))
     (compojure/POST "/authorize" request
-      (authorize-fn request db oauth))
+      (post-authorize request db oauth))
     (route/not-found "The page could not be found")))

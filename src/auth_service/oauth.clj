@@ -7,11 +7,11 @@
 
   (start [this]
     (println "Creating oauthd component ...")
-    (AuthorizationApi/initialize providerId providerSecret)
     (let [authen (-> (AuthorizationApi.)
                      (doto (.setBasePath basePath)))
           client (-> (ClientApi.)
                      (doto (.setBasePath basePath)))]
+      (AuthorizationApi/initialize providerId providerSecret)
       (-> this
           (assoc :authorization authen)
           (assoc :client client)
