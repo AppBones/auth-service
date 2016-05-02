@@ -46,7 +46,7 @@
         (response/redirect uri))
       (catch io.oauth.server.ApiException e
         (prn e)
-        {:status 400 :body (.toString e)}))))
+        (response/content-type {:body (.getMessage e)} "text/html")))))
 
 (defn get-token [request db oauth]
   "I don't do much yet")
