@@ -48,5 +48,14 @@
         (prn e)
         {:body (.getMessage e)}))))
 
-(defn get-token [request db oauth]
-  "I don't do much yet")
+(defn post-token [request db oauth]
+  (let [{:keys [client_id client_secret grant_type scope code refresh_token]}
+        (:params request)]
+    (try
+      (let [ts (-> (:authorization oauth)
+                   (.token client_id client_secret grant_type scope code refresh_token))
+            token (.toJson ts)]
+        (response/content-type {:body token} "application/json"))
+      (catch io.oauth.server.ApiException e
+        (prn e)
+        {:body (.getMessage e)}))))

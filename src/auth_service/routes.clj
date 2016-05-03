@@ -6,8 +6,8 @@
 
 (ccompojure/defroutes Routes [db oauth]
   (compojure/context "/oauth2" []
-    (compojure/GET "/token" request
-      (get-token request db oauth))
+    (compojure/POST "/token" request
+      (post-token request db oauth))
     (compojure/GET "/authorize" request
       (get-authorize request db oauth))
     (compojure/POST "/authorize" request
