@@ -6,10 +6,12 @@
 
 (ccompojure/defroutes Routes [db oauth]
   (compojure/context "/oauth2" []
-    (compojure/POST "/token" request
-      (post-token request db oauth))
     (compojure/GET "/authorize" request
       (get-authorize request db oauth))
     (compojure/POST "/authorize" request
       (post-authorize request db oauth))
+    (compojure/POST "/token" request
+      (post-token request db oauth))
+    (compojure/GET "/check" request
+      (check-token request db oauth))
     (route/not-found "The page could not be found")))

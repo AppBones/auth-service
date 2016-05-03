@@ -1,5 +1,6 @@
 (ns auth-service.handlers
-  (:require [hiccup.page :refer [html5]]
+  (:require [clojure.string :refer [split]]
+            [hiccup.page :refer [html5]]
             [hiccup.util :refer [escape-html]]
             [ring.util.response :as response])
   (:import (io.oauth.server.api AuthorizationApi ClientApi)))
@@ -45,6 +46,7 @@
             uri (.getCallbackUri cb)]
         (response/redirect uri))
       (catch io.oauth.server.ApiException e
+        (println "authem")
         (prn e)
         {:body (.getMessage e)}))))
 
@@ -57,5 +59,18 @@
             token (.toJson ts)]
         (response/content-type {:body token} "application/json"))
       (catch io.oauth.server.ApiException e
+        (println "postem")
+        (prn e)
+        {:body (.getMessage e)}))))
+
+(defn check-token [request db oauth]
+  (let [token (or (get-in request [:params :access_token])
+                  (last (split (get-in request [:headers "authorization"]) #" ")))]
+    (try
+      (let [tokeninfo (.check (:authorization oauth) token)
+            info (.toJson tokeninfo)]
+        (response/content-type {:body info} "application/json"))
+      (catch io.oauth.server.ApiException e
+        (println "checkem")
         (prn e)
         {:body (.getMessage e)}))))
