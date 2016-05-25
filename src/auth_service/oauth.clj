@@ -4,9 +4,12 @@
             [clojure.data.json :as json]
             [com.stuartsierra.component :as component]
             [ring.util.response :as resp]
+            [buddy.sign.jwe :as jwe]
+            [buddy.sign.jws :as jws]
+            [buddy.core.keys :as keys]
             [org.httpkit.client :as http]))
 
-(defrecord OAuthProvider [basePath providerId providerSecret]
+(defrecord OAuthProvider [basePath providerId providerSecret jwt-key key-pass]
   component/Lifecycle
 
   (start [this]
@@ -14,12 +17,14 @@
     (-> this
         (assoc :oauthd-id providerId)
         (assoc :oauthd-secret providerSecret)
-        (assoc :oauthd-path basePath)))
+        (assoc :oauthd-path basePath)
+        (assoc :jwt-key (keys/str->private-key jwt-key key-pass))))
 
   (stop [this]
     (-> this
         (assoc :oauthd-id nil)
         (assoc :oauthd-secret nil)
+        (assoc :jwt-key nil)
         (assoc :oauthd-path nil))))
 
 (defn authp [request cfg]
@@ -90,7 +95,7 @@
                       (select-keys [:query-params])
                       (authp cfg))
           url (str (:oauthd-path cfg) "/check")
-          {:keys [status body error opts]} @(http/post url options)]
+          {:keys [status body error opts]} @(http/get url options)]
       (if error
         (-> (resp/response "Internal Server Error")
             (resp/status 500))
@@ -99,3 +104,15 @@
             (assoc :status status)
             (assoc :body body))))))
 
+(defn ac->jwt [handler cfg]
+  "Wrap a handler with middleware to obtain a check of an access token, then
+  encode the response as a JWT enriched with the apropos user's data."
+  (fn [request]
+    (let [h (check handler cfg)
+          check (h request)]
+      (if (= (:status check) 200)
+        (let [token (json/read-str (:body check))
+              jwt (jwe/encrypt token (:jwt-key cfg) {:alg :rsa-oaep-256
+                                                     :enc :a128cbc-hs256})]
+          (resp/response jwt))
+        check))))

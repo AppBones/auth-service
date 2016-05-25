@@ -15,4 +15,6 @@
       (oauth/token request oauth))
     (compojure/GET "/check" request
       (oauth/check request oauth))
+    (compojure/GET "/jwt" request
+      (oauth/ac->jwt request oauth))
     (route/not-found "The page could not be found")))

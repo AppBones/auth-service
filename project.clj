@@ -6,6 +6,7 @@
                  [org.clojure/data.codec "0.1.0"]
                  [org.clojure/data.json "0.2.6"]
                  [com.stuartsierra/component "0.3.1"]
+                 [buddy "0.13.0"]
                  [compojure "1.5.0"]
                  [environ "1.0.2"]
                  [hiccup "1.0.5"]

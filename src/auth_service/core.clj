@@ -20,11 +20,13 @@
 
 (defn create-service [config-opts]
   "wires up the web service's dependency graph with provided configuration"
-  (let [{:keys [domain http-port db-connection is-dev oauthd-url
-                oauthd-id oauthd-secret]} config-opts
+  (let [{:keys [domain http-port db-connection is-dev oauthd-url private-key-pass
+                oauthd-id oauthd-secret appbone-private-key]} config-opts
         is-dev (if (nil? is-dev) (= "true" (env :is-dev)) is-dev)
         http-port (read-string (get-opt http-port :port "8081"))
         oauthd-url (get-opt oauthd-url :oauthd-url "https://oauth.io/oauth2")
+        privatekey (get-opt appbone-private-key :appbone-private-key "")
+        keypass (get-opt private-key-pass :private-key-pass "")
         providerId (get-opt oauthd-id :oauthd-id "")
         providerSecret (get-opt oauthd-secret :oauthd-secret "")
         db-connection (get-opt db-connection :db-connection "")]
@@ -33,7 +35,9 @@
      :db (db/map->DB {:conn db-connection})
      :oauth (oauth/map->OAuthProvider {:basePath oauthd-url
                                        :providerId providerId
-                                       :providerSecret providerSecret})
+                                       :providerSecret providerSecret
+                                       :jwt-key privatekey
+                                       :key-pass keypass})
      :routes (component/using
               (routes/map->Routes {})
               [:db :oauth])
